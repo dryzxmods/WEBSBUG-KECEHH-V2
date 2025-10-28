@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SHADOW PHOENIX</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+:root{
+  --bg1: #121212; 
+  --bg2: #1a1a1a; 
+  --primary: #8a63d2;
+  --primary-dark: #6f42c1;
+  --primary-light: #9d7ad9;
+  --text: #e9ecef;
+  --text-muted: #adb5bd;
+  --panel: rgba(40, 40, 40, 0.95);
+  --panel-border: rgba(108, 117, 125, 0.3);
+  --success: #28a745;
+  --warning: #ffc107;
+  --error: #dc3545;
+  --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  --glass: rgba(60, 60, 60, 0.7);
+  --glass-border: rgba(108, 117, 125, 0.3);
+  --accent-1: #ff6b6b;
+  --accent-2: #4ecdc4;
+  --accent-3: #45b7d1;
+  --accent-4: #f9c74f;
+  --accent-5: #f94144;
+  --accent-6: #90be6d;
+  --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  --gradient-5: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+@font-face {
+  font-family: 'DeadSpace';
+  src: url(data:font/truetype;charset=utf-8;base64,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AJkAawFDAA8ALv9n/0L/t/8l/93/lACeAdwACgAg/6n++wBYAQn/wgKY/67/CwAoAHkAAAAAACkAfAAA/y//tP8c/9r/kAAAAAAAOgCt/93/lABbARMAAAAC/+z/AQI9A5YAEwAjAAABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQACPf++/zj/5P+r//X/4P/a/48AAAAAAC4AigAfAFwACgAfABAALgAp/ikALgCKABkATf/s/8IALgCL/8D/QP/n/7YAGABH/98Dlv////7/7//N/8L/Rv/n/7QAAAAAAAAAAAASADcANACcAAoAHgAZ/n0AAAAA/+v/w/+F/o//3v+YAAEAAwASADYAigGgABQAAgAA/v8BcAOgAAcADwAAAQABAAEAAQABAAEAAQABAAAAADMAmgAWAEL/2P+F/98AUf/1/94AKgB8ABEANP/Q/v8AKAB5AIsBoAAAAAD/TQHw/7v/MwAA//8AawFA/9oAAv/9/wICewOVABMAIwAAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEA//0AQQDCAB8AXQAXAEMAJABsAAAAAP/S/3b/4v+o/+r/vv/u/8v/2QIJ/9L/dv/m/7MACgAf/9L/dgA9ALgAGwBS//T/2gAg/wIAAAABABIANQCGAZIAGgBNAAAAAAAAAAD/7f/J/4P+iv/2/+H/5wKoAAAAAAAUAD4AMgCYACIAZf////3/7v/K/7//PP/rAAEAAACqAbEBtAAbAAABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAB0AGABGABIANwAHABYABQAQAAoAHwAkAG7/+P/n/+n/uv/u/8n/+f/q//v/8P/2/+H/3f+UAAcBdwAAAAAADwAu//H/0v/2/+EACgAfAAAAAP/c/5QAAAAA//H/0gAPAC4ACwAe//b/4QAAAAAAJAAAAAEAAAIYARcDjgAJAAABAAEAAQABAAEAAAAARgDR//f/5P/O/2kADAAj/+oDjAABAAH/w/9K/9//ngBEAM0AGQACAAACGwIpA44ACQATAAABAAEAAQABAAEAAQABAAEAAQABAAAAABAAMABFAM7/4/+o//v/8P/OAD8AEAAwAEQAz//j/6j/+//w/84CGwBdARQAAAAB/+j/t//c/5P/4P+iAFwBFAAB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) format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0; 
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+  color: var(--text);
+  background: linear-gradient(135deg, var(--bg1), var(--bg2));
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.video-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.1;
+  z-index: -1;
+  filter: blur(2px);
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(18, 18, 18, 0.9), rgba(26, 26, 26, 0.85));
+  z-index: -1;
+}
+
+.container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  position: relative;
+  padding-bottom: 80px;
+}
+
+.page { 
+  width: 100%;
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.page.active { 
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.card { 
+  background: var(--panel); 
+  border: 1px solid var(--panel-border);
+  border-radius: 20px; 
+  padding: 30px; 
+  width: 100%;
+  max-width: 500px;
+  box-shadow: var(--card-shadow); 
+  text-align: center; 
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+}
+
+.video-brand { 
+  width: 100%;
+  max-width: 420px;
+  border-radius: 15px; 
+  border: 2px solid var(--glass-border); 
+  box-shadow: 0 0 20px rgba(138, 99, 210, 0.3); 
+  display: block; 
+  margin: 0 auto 16px; 
+  height: auto;
+  aspect-ratio: 16/9;
+  transition: all 0.3s ease;
+}
+
+.video-brand:hover {
+  box-shadow: 0 0 30px rgba(138, 99, 210, 0.5);
+  transform: translateY(-3px);
+}
+
+.subtitle { 
+  font-weight: 600; 
+  color: var(--text-muted); 
+  margin: 8px 0 16px; 
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+}
+
+h2 { 
+  margin: 12px 0 16px; 
+  color: var(--primary);
+  font-weight: 600;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.input-group {
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+input, select, button, textarea { 
+  width: 100%; 
+  padding: 14px 16px; 
+  border: none; 
+  border-radius: 12px; 
+  font-size: 16px; 
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+input, select, textarea { 
+  background: var(--glass); 
+  color: var(--text); 
+  outline: none; 
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 0 5px rgba(138, 99, 210, 0.1); 
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 8px rgba(138, 99, 210, 0.15), 0 0 5px rgba(138, 99, 210, 0.1);
+}
+
+.select-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.select-wrapper::after {
+  content: "▼";
+  font-size: 12px;
+  color: var(--text-muted);
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none;
+  cursor: pointer;
+  padding-right: 40px;
+  background: linear-gradient(135deg, var(--glass), rgba(138, 99, 210, 0.1));
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+}
+
+select:hover {
+  border-color: var(--primary-light);
+  background: linear-gradient(135deg, var(--glass), rgba(138, 99, 210, 0.15));
+}
+
+.select-wrapper:focus-within::after {
+  color: var(--primary);
+  transform: translateY(-50%) rotate(180deg);
+}
+
+select option {
+  background: var(--panel);
+  color: var(--text);
+  padding: 10px;
+}
+
+select:focus {
+  background: linear-gradient(135deg, var(--glass), rgba(138, 99, 210, 0.2));
+}
+
+button { 
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+  color: #fff; 
+  font-weight: 600; 
+  cursor: pointer; 
+  box-shadow: 0 4px 10px rgba(138, 99, 210, 0.2); 
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.5px;
+  border: none;
+  margin-top: 10px;
+}
+
+button:hover { 
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(138, 99, 210, 0.3);
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(138, 99, 210, 0.2);
+}
+
+button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: 0.5s;
+}
+
+button:hover::after {
+  left: 100%;
+}
+
+.note { 
+  font-size: 13px; 
+  opacity: .85;
+  margin-top: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.note a { 
+  color: var(--primary); 
+  text-decoration: none;
+  transition: color 0.2s;
+  font-weight: 500;
+}
+
+.note a:hover { 
+  color: var(--primary-light);
+  text-decoration: underline;
+}
+
+.brand-header {
+  text-align: center;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.brand-header::after {
+  content: '';
+  display: block;
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  margin: 16px auto 0;
+}
+
+.brand-header-small .video-brand {
+  width: 320px;
+  margin-bottom: 12px;
+}
+
+.brand-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 8px rgba(138, 99, 210, 0.2);
+  letter-spacing: 1px;
+  margin: 8px 0;
+  position: relative;
+  display: inline-block;
+}
+
+.brand-title::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  border-radius: 3px;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--panel);
+  border-top: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  padding: 10px 0;
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3);
+  display: none;
+}
+
+.nav-tabs {
+  display: flex;
+  justify-content: space-around;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.nav-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0.7;
+  color: var(--text-muted);
+  text-decoration: none;
+  min-width: 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-tab.active {
+  opacity: 1;
+  color: var(--primary);
+  background: rgba(138, 99, 210, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(138, 99, 210, 0.25);
+}
+
+.nav-tab i {
+  font-size: 20px;
+  margin-bottom: 5px;
+  transition: all 0.3s ease;
+}
+
+.nav-tab.active i {
+  color: var(--primary);
+  transform: scale(1.1);
+}
+
+.nav-tab span {
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.nav-tab.active span {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.nav-tab:hover:not(.active) {
+  opacity: 0.9;
+  background: rgba(138, 99, 210, 0.05);
+}
+
+.nav-tab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: 0.5s;
+}
+
+.nav-tab:hover::before {
+  left: 100%;
+}
+
+.admin-panel {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.admin-card { 
+  background: var(--panel); 
+  border: 1px solid var(--panel-border);
+  border-radius: 20px; 
+  padding: 25px; 
+  box-shadow: var(--card-shadow);
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+}
+
+.admin-row { 
+  display: grid; 
+  gap: 14px; 
+  grid-template-columns: 1fr 1fr 1fr 1fr auto; 
+  align-items: center; 
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(108, 117, 125, 0.2);
+}
+
+.admin-row:last-child {
+  border-bottom: none;
+}
+
+.admin-list { 
+  margin-top: 16px; 
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 12px;
+  background: var(--glass);
+  padding: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) rgba(0, 0, 0, 0.3);
+}
+
+.admin-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.admin-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.admin-list::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+.admin-list::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
+
+.badge { 
+  padding: 5px 10px; 
+  border-radius: 999px; 
+  font-size: 12px; 
+  background: #343a40; 
+  display: inline-block;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.badge.ok { 
+  background: var(--success); 
+  color: white;
+}
+
+.badge.exp { 
+  background: var(--warning); 
+  color: #212529;
+}
+
+.actions button { 
+  padding: 8px 12px; 
+  margin-left: 6px; 
+  border-radius: 8px; 
+  font-size: 14px;
+  width: auto;
+}
+
+.btn-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.btn-group button {
+  flex: 1;
+}
+
+.action-selector {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  align-items: stretch;
+  background: var(--glass);
+  border-radius: 16px;
+  padding: 10px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.action-selector select {
+  flex: 2;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--glass), rgba(138, 99, 210, 0.1));
+  border: 1px solid var(--primary-light);
+  color: var(--text);
+  font-weight: 500;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.action-selector button {
+  flex: 1;
+  border-radius: 12px;
+  background: var(--gradient-2);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.action-selector button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(255, 107, 107, 0.4);
+}
+
+.action-selector button:active {
+  transform: translateY(0);
+}
+
+.target-actions {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.action-btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border: none;
+  border-radius: 16px;
+  padding: 16px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(138, 99, 210, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.action-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(138, 99, 210, 0.35);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+.action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(255, 255, 255, 0.1), transparent);
+}
+
+.action-btn:nth-child(1) {
+  background: var(--gradient-2);
+}
+
+.action-btn:nth-child(2) {
+  background: var(--gradient-3);
+}
+
+.action-btn:nth-child(3) {
+  background: var(--gradient-5);
+}
+
+.result-card {
+  text-align: center;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+pre {
+  background: var(--glass);
+  padding: 16px;
+  border-radius: 12px;
+  overflow: auto;
+  text-align: left;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  border: 1px solid var(--glass-border);
+  max-height: 300px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) rgba(0, 0, 0, 0.3);
+}
+
+pre::-webkit-scrollbar {
+  width: 8px;
+}
+
+pre::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.status-success {
+  background: var(--success);
+  box-shadow: 0 0 6px var(--success);
+}
+
+.status-error {
+  background: var(--error);
+  box-shadow: 0 0 6px var(--error);
+}
+
+.status-processing {
+  background: var(--warning);
+  box-shadow: 0 0 6px var(--warning);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.ip-tracking-result {
+  background: var(--glass);
+  padding: 16px;
+  border-radius: 12px;
+  margin-top: 16px;
+  border: 1px solid var(--glass-border);
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.6;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) rgba(0, 0, 0, 0.3);
+}
+
+.ip-tracking-result div {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.ip-tracking-result i {
+  width: 20px;
+  margin-right: 10px;
+  color: var(--primary);
+}
+
+#map {
+  height: 300px;
+  width: 100%;
+  border-radius: 12px;
+  margin-top: 16px;
+  border: 1px solid var(--glass-border);
+}
+
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.popup.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.popup-content {
+  background: var(--panel);
+  border-radius: 20px;
+  padding: 24px;
+  width: min(90vw, 400px);
+  box-shadow: var(--card-shadow);
+  text-align: center;
+  position: relative;
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+}
+
+.popup.active .popup-content {
+  transform: scale(1);
+}
+
+.popup-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  width: auto;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.popup-close:hover {
+  color: var(--text);
+}
+
+.ddos-controls {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.ddos-controls .input-group {
+  margin-bottom: 0;
+}
+
+.ddos-controls .action-selector {
+  margin-top: 0;
+}
+
+.ddos-status {
+  margin-top: 20px;
+  padding: 16px;
+  background: var(--glass);
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.6;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) rgba(0, 0, 0, 0.3);
+}
+
+.ddos-status div {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.ddos-status i {
+  width: 20px;
+  margin-right: 10px;
+  color: var(--primary);
+}
+
+.home-card {
+  text-align: center;
+}
+
+.user-info {
+  background: var(--gradient-1);
+  border-radius: 16px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.user-info h3 {
+  color: white;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+}
+
+.user-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  text-align: left;
+  color: white;
+}
+
+.user-details div {
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.developer-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.dev-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--gradient-4);
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(67, 233, 123, 0.3);
+}
+
+.dev-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(67, 233, 123, 0.4);
+}
+
+.dev-btn.telegram {
+  background: var(--gradient-3);
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+}
+
+.dev-btn.telegram:hover {
+  box-shadow: 0 6px 15px rgba(79, 172, 254, 0.4);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.feature-card {
+  background: var(--glass);
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  border: 1px solid var(--glass-border);
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(138, 99, 210, 0.2);
+}
+
+.feature-card i {
+  font-size: 24px;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.feature-card h4 {
+  color: var(--text);
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.feature-card p {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 768px){
+  .admin-row { 
+    grid-template-columns: 1fr 1fr; 
+    gap: 10px;
+  }
+  .admin-row .wide { 
+    grid-column: 1 / -1; 
+  }
+  .target-actions {
+    grid-template-columns: 1fr;
+  }
+  .brand-title {
+    font-size: 1.8rem;
+  }
+  .action-selector {
+    flex-direction: column;
+  }
+  .action-selector select,
+  .action-selector button {
+    border-radius: 12px;
+  }
+  .ip-tracking-result div {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .ip-tracking-result i {
+    margin-bottom: 5px;
+  }
+  .admin-list {
+    max-height: 300px;
+  }
+  pre {
+    max-height: 200px;
+  }
+  .nav-tab span {
+    font-size: 10px;
+  }
+  .nav-tab {
+    padding: 8px 12px;
+    min-width: 70px;
+  }
+  .container {
+    padding: 10px;
+  }
+  .video-brand {
+    max-width: 350px;
+  }
+  .user-details {
+    grid-template-columns: 1fr;
+  }
+  .developer-links {
+    grid-template-columns: 1fr;
+  }
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 20px 16px;
+  }
+  .admin-card {
+    padding: 16px 12px;
+  }
+  .brand-title {
+    font-size: 1.6rem;
+  }
+  .admin-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .nav-tab span {
+    display: none;
+  }
+  .nav-tab i {
+    font-size: 24px;
+    margin-bottom: 0;
+  }
+  .nav-tab {
+    min-width: 60px;
+    padding: 12px;
+  }
+  .video-brand {
+    max-width: 280px;
+  }
+}
+</style>
+</head>
+<body>
+<video autoplay muted loop class="video-background">
+  <source src="https://files.catbox.moe/sxmhgw.mp4" type="video/mp4">
+</video>
+<div class="overlay"></div>
+
+<div class="container">
+  <section id="page-login" class="page active">
+    <div class="card">
+      <div class="brand-header">
+        <video autoplay muted loop class="video-brand">
+          <source src="https://files.catbox.moe/sxmhgw.mp4" type="video/mp4">
+        </video>
+        <font size="5" face="DeadSpace" color="white">SHADOW PHOENIX</font>
+      </div>
+      
+      <div class="input-group">
+        <label for="loginUser">Username</label>
+        <input id="loginUser" placeholder="Masukkan username"/>
+      </div>
+      
+      <div class="input-group">
+        <label for="loginPass">Password</label>
+        <input id="loginPass" type="password" placeholder="Masukkan password"/>
+      </div>
+      
+      <button id="btnLogin">Login</button>
+  </section>
+
+  <section id="page-home" class="page">
+    <div class="card home-card">
+      <div class="brand-header brand-header-small">
+        <video autoplay muted loop class="video-brand">
+          <source src="https://files.catbox.moe/sxmhgw.mp4" type="video/mp4">
+        </video>
+        <font size="5" face="DeadSpace" color="white">SHADOW PHOENIX</font>
+      </div>
+      
+      <h2>Dashboard</h2>
+      <p class="note">Welcome To App SHADOW PHOENIX</p>
+      
+      <div class="user-info">
+        <h3>Informasi Akun</h3>
+        <div class="user-details">
+          <div><strong>Username:</strong> <span id="userName">-</span></div>
+          <div><strong>Role:</strong> <span id="userRole">-</span></div>
+          <div><strong>Status:</strong> <span id="userStatus">-</span></div>
+          <div><strong>Expired:</strong> <span id="userExpired">-</span></div>
+        </div>
+      </div>
+      
+      <div class="developer-links">
+        <a href="https://t.me/JarzxNotDev" target="_blank" class="dev-btn telegram">
+          <i class="fab fa-telegram"></i>
+          Developer
+        </a>
+        <a href="https://t.me/JarzxNotDev" target="_blank" class="dev-btn">
+          <i class="fab fa-telegram"></i>
+          Channel
+        </a>
+      </div>
+      
+      <div class="feature-grid">
+        <div class="feature-card">
+          <i class="fas fa-bug"></i>
+          <h4>Bug Menu</h4>
+          <p>WhatsApp Bug</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-map-marker-alt"></i>
+          <h4>IP Tracking</h4>
+          <p>Track IP location</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-bolt"></i>
+          <h4>DDoS Attack</h4>
+          <p>Attack Website</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-users"></i>
+          <h4>User Management</h4>
+          <p>Manage users</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="page-user-management" class="page">
+    <div class="admin-panel">
+      <div class="admin-card">
+        <div class="brand-header brand-header-small">
+          <video autoplay muted loop class="video-brand">
+            <source src="https://files.catbox.moe/sxmhgw.mp4" type="video/mp4">
+          </video>
+         <font size="5" face="DeadSpace" color="white">SHADOW PHOENIX</font>
+        </div>
+        
+        <div style="text-align: center;">
+          <h2 id="panelTitle">User Management</h2>
+          <div class="note" id="panelNote"></div>
+        </div>
+
+        <h3 style="text-align: center;">Create New User</h3>
+        <div class="admin-row">
+          <input id="newUsername" placeholder="Username baru"/>
+          <input id="newPassword" placeholder="Password" type="password"/>
+          <div class="select-wrapper">
+            <select id="newDuration">
+              <option value="permanent">Permanent</option>
+              <option value="1">1 month</option>
+              <option value="2">2 month</option>
+              <option value="3">3 month</option>
+              <option value="6">6 month</option>
+              <option value="12">12 month</option>
+            </select>
+          </div>
+          <div class="select-wrapper">
+            <select id="newRole"></select>
+          </div>
+          <button id="btnCreate">Buat User</button>
+          <div id="createMsg" class="note wide"></div>
+        </div>
+        <h3 style="text-align: center;">Daftar User</h3>
+        <div id="usersList" class="admin-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="page-bug-menu" class="page">
+    <div class="card">
+      <div class="brand-header brand-header-small">
+        <video autoplay muted loop class="video-brand">
+          <source src="https://files.catbox.moe/sxmhgw.mp4" type="video/mp4">
+        </video>
+        <font size="5" face="DeadSpace" color="white">SHADOW PHOENIX</font>
+      </div>
+      
+      <h2>Bug Menu</h2>
+      <p class="note">Select Bugs To Target</p>
+      
+      <div class="input-group">
+        <label for="targetNumber">Nomor Target</label>
+        <input type="text" id="targetNumber" placeholder="Masukkan nomor target (62xxxx)">
+      </div>
+      
+      <div class="action-selector">
+        <div class="select-wrapper">
+          <select id="actionSelect">
+            <option value="force">Delay Visible</option>
+            <option value="ios">Dozer Invisible</option>
+            <option value="crash">Blank x Crash</option>
+          </select>
+        </div>
+        <button id="btnSend">Execute</button>
+      </div>
+      
+      <div id="adminResult" class="note" style="margin-top: 16px;"></div>
+    </div>
+  </section>
+
+  <section id="page-ip-tracking" class="page">
+    <div class="card">
+      <div class="brand-header brand-header-small">
+        <video autoplay muted loop class="video-brand">
+          <source src="https://files.catbox.moe/sxmhgw.mp4" type="video/mp4">
+        </video>
+        <font size="5" face="DeadSpace" color="white">SHADOW PHOENIX</font>
+      </div>
+      
+      <h2>IP Tracking</h2>
+      <p class="note">Track location information by IP address</p>
+      
+      <div class="input-group">
+        <label for="ipInput">IP Address</label>
+        <input type="text" id="ipInput" placeholder="Masukkan alamat IP (contoh: 8.8.8.8)"/>
+      </div>            
+      <button id="trackBtn" class="action-btn">
+        <i class="fas fa-search"></i> Track IP
+      </button>            
+      <div id="ipResult" class="ip-tracking-result" style="display: none;"></div>
+      <div id="map" style="display: none;"></div>
+    </div>
+  </section>
+
+  <section id="page-ddos" class="page">
+    <div class="card">
+      <div class="brand-header brand-header-small">
+        <video autoplay muted loop class="video-brand">
+          <source src="https://files.catbox.moe/sxmhgw.mp4" type="video/mp4">
+        </video>
+        <font size="5" face="DeadSpace" color="white">SHADOW PHOENIX</font>
+      </div>
+      
+      <h2>DDoS Attack</h2>
+      <p class="note">Select DDoS Attack To Target</p>
+      
+      <div class="ddos-controls">
+        <div class="input-group">
+          <label for="ddosTarget">Target URL/IP</label>
+          <input type="text" id="ddosTarget" placeholder="Masukkan target (contoh: example.com)"/>
+        </div>
+        
+        <div class="input-group">
+          <label for="ddosDuration">Duration (second)</label>
+          <input type="number" id="ddosDuration" placeholder="Masukkan durasi serangan" value="60"/>
+        </div>
+        
+        <div class="action-selector">
+          <div class="select-wrapper">
+            <select id="ddosMethod">
+              <option value="kill">Kill Attack</option>
+              <option value="KOMIX">KOMIX Attack</option>
+              <option value="R2">R2 Attack</option>
+              <option value="PSHT">PSHT Attack</option>
+              <option value="pidoras">Pidoras Attack</option>
+              <option value="exercist">Exercist Attack</option>
+            </select>
+          </div>
+          <button id="btnStartDDoS">Launch Attack</button>
+        </div>
+      </div>
+      
+      <div id="ddosStatus" class="ddos-status" style="display: none;"></div>
+    </div>
+  </section>
+
+  <section id="page-result" class="page">
+    <div class="card result-card">
+      <div class="brand-header brand-header-small">
+        <video autoplay muted loop class="video-brand">
+          <source src="https://files.catbox.moe/sxmhgw.mp4" type="video/mp4">
+        </video>
+        <font size="5" face="DeadSpace" color="white">SHADOW PHOENIX</font>
+      </div>
+      
+      <h2>Execution Status</h2>
+      
+      <div id="banner">
+        <pre id="caption"></pre>
+      </div>
+      
+      <p style="margin: 16px 0; text-align: center;"><a id="targetLink" href="#" target="_blank">View Target</a></p>
+      <button id="btnBackToFirst">Back to Main Menu</button>
+    </div>
+  </section>
+</div>
+
+<div class="bottom-nav" id="bottomNav">
+  <div class="nav-tabs">
+    <a href="#" class="nav-tab active" data-page="page-home">
+      <i class="fas fa-home"></i>
+      <span>Home</span>
+    </a>
+    <a href="#" class="nav-tab" data-page="page-user-management">
+      <i class="fas fa-users"></i>
+      <span>Users</span>
+    </a>
+    <a href="#" class="nav-tab" data-page="page-bug-menu">
+      <i class="fas fa-bug"></i>
+      <span>Bugs</span>
+    </a>
+    <a href="#" class="nav-tab" data-page="page-ip-tracking">
+      <i class="fas fa-map-marker-alt"></i>
+      <span>IP Track</span>
+    </a>
+    <a href="#" class="nav-tab" data-page="page-ddos">
+      <i class="fas fa-bolt"></i>
+      <span>DDoS</span>
+    </a>
+    <a href="#" class="nav-tab" id="logoutBtn">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Logout</span>
+    </a>
+  </div>
+</div>
+
+<div class="popup" id="popup">
+  <div class="popup-content">
+    <button class="popup-close" id="popupClose">&times;</button>
+    <h3 id="popupTitle"></h3>
+    <p id="popupMessage"></p>
+    <button id="popupOk">OK</button>
+  </div>
+</div>
+
+<script>
+const GH_USER = "dryzxmods";
+const GH_REPO = "Token-Database-Executer";
+const GH_BRANCH = "main";
+const GH_FILE = "app.json";
+const GH_TOKEN = "";
+
+let map = null;
+let marker = null;
+let currentUser = null;
+let currentUserData = null;
+
+function addMonths(date, months) { 
+  let d = new Date(date); 
+  d.setMonth(d.getMonth() + months); 
+  return d; 
+}
+
+function isExpired(ts) { 
+  return ts && Date.now() > ts; 
+}
+
+function fmtTime(ts) { 
+  if (!ts) return 'Permanent'; 
+  return new Date(ts).toLocaleString(); 
+}
+
+function byId(id) {
+  return document.getElementById(id);
+}
+
+function initBottomNav() {
+  const navTabs = document.querySelectorAll('.nav-tab');
+  const logoutBtn = byId('logoutBtn');
+  
+  navTabs.forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      if (tab === logoutBtn) {
+        logout();
+        return;
+      }
+      
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      
+      tab.classList.add('active');
+      const pageName = tab.getAttribute('data-page');
+      const page = document.getElementById(pageName);
+      if (page) {
+        page.classList.add('active');
+      }
+    });
+  });
+}
+
+function showPopup(title, message) {
+  byId('popupTitle').textContent = title;
+  byId('popupMessage').textContent = message;
+  byId('popup').classList.add('active');
+}
+
+function hidePopup() {
+  byId('popup').classList.remove('active');
+}
+
+byId('popupClose').addEventListener('click', hidePopup);
+byId('popupOk').addEventListener('click', hidePopup);
+
+async function getUsers() {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}?ref=${GH_BRANCH}`, {
+      headers: { Authorization: `token ${GH_TOKEN}` }
+    });
+    if (!res.ok) throw new Error("Gagal ambil data");
+    const data = await res.json();
+    return JSON.parse(atob(data.content));
+  } catch (e) {
+    console.error(e);
+    showPopup("Error", "Gagal mengambil data user");
+    return [];
+  }
+}
+
+async function saveUsers(arr) {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}?ref=${GH_BRANCH}`, {
+      headers: { Authorization: `token ${GH_TOKEN}` }
+    });
+    const data = await res.json();
+    await fetch(`https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}`, {
+      method: "PUT",
+      headers: { 
+        Authorization: `token ${GH_TOKEN}`, 
+        "Content-Type": "application/json" 
+      },
+      body: JSON.stringify({
+        message: "Update users.json",
+        content: btoa(unescape(encodeURIComponent(JSON.stringify(arr, null, 2)))),
+        sha: data.sha,
+        branch: GH_BRANCH
+      })
+    });
+    return true;
+  } catch (e) {
+    console.error(e);
+    showPopup("Error", "Gagal menyimpan data user");
+    return false;
+  }
+}
+
+async function createUser(username, password, duration, role) {
+  const users = await getUsers();
+  if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+    return { ok: false, msg: "Username sudah dipakai" };
+  }
+  
+  let expiresAt = null; 
+  if (duration !== "permanent") {
+    expiresAt = addMonths(new Date(), parseInt(duration, 10)).getTime();
+  }
+  
+  users.push({ username, password, role, expiresAt, createdAt: Date.now() });
+  const saved = await saveUsers(users);
+  
+  return { ok: saved, msg: saved ? "User berhasil dibuat" : "Gagal membuat user" };
+}
+
+async function findUser(username) { 
+  const users = await getUsers(); 
+  return users.find(u => u.username.toLowerCase() === username.toLowerCase()); 
+}
+
+async function deleteUser(username) { 
+  const users = await getUsers(); 
+  return await saveUsers(users.filter(u => u.username.toLowerCase() !== username.toLowerCase())); 
+}
+
+const pages = {
+  login: byId('page-login'),
+  home: byId('page-home'),
+  userManagement: byId('page-user-management'),
+  bugMenu: byId('page-bug-menu'),
+  ipTracking: byId('page-ip-tracking'),
+  ddos: byId('page-ddos'),
+  result: byId('page-result')
+};
+
+function show(id) { 
+  Object.values(pages).forEach(p => p.classList.remove('active'));
+  
+  if (pages[id]) {
+    pages[id].classList.add('active');
+  }
+  
+  if (id !== 'login') {
+    byId('bottomNav').style.display = 'block';
+    updateUserInfo();
+  } else {
+    byId('bottomNav').style.display = 'none';
+  }
+}
+
+function getCurrentRoleSync(userObj) { 
+  if (currentUser === 'admin') return 'admin'; 
+  return userObj ? (userObj.role || 'user') : 'user'; 
+}
+
+function logout() {
+  currentUser = null;
+  currentUserData = null;
+  byId('loginUser').value = '';
+  byId('loginPass').value = '';
+  byId('loginMsg').textContent = '';
+  show('login');
+}
+
+function updateUserInfo() {
+  if (currentUserData) {
+    byId('userName').textContent = currentUserData.username;
+    byId('userRole').textContent = currentUserData.role || 'user';
+    byId('userStatus').textContent = isExpired(currentUserData.expiresAt) ? 'Expired' : 'Active';
+    byId('userExpired').textContent = fmtTime(currentUserData.expiresAt);
+  } else if (currentUser === 'admin') {
+    byId('userName').textContent = 'admin';
+    byId('userRole').textContent = 'admin';
+    byId('userStatus').textContent = 'Active';
+    byId('userExpired').textContent = 'Permanent';
+  }
+}
+
+byId('btnLogin').onclick = async () => {
+  const u = byId('loginUser').value.trim();
+  const p = byId('loginPass').value.trim();
+  
+  if (u === 'admin' && p === 'kayla') { 
+    currentUser = 'admin'; 
+    currentUserData = null;
+    openPanel(); 
+    return; 
+  }
+  
+  if (u === 'owner' && p === 'ownerpass') { 
+    currentUser = 'owner'; 
+    currentUserData = null;
+    openPanel(); 
+    return; 
+  }
+  
+  const user = await findUser(u);
+  if (!user || user.password !== p) { 
+    byId('loginMsg').textContent = "Username/password salah"; 
+    return; 
+  }
+  
+  if (isExpired(user.expiresAt)) { 
+    byId('loginMsg').textContent = "Akun sudah expired"; 
+    return; 
+  }
+  
+  currentUser = u; 
+  currentUserData = user;
+  if (user.role === 'owner' || user.role === 'reseller') {
+    openPanel(); 
+  } else { 
+    openUserPanel(); 
+  }
+};
+
+async function openPanel() {
+  const u = currentUser === 'admin' ? null : await findUser(currentUser);
+  const role = getCurrentRoleSync(u);  
+  byId('panelTitle').textContent = role.charAt(0).toUpperCase() + role.slice(1) + " Panel";
+  byId('panelNote').textContent = "Login sebagai " + role;
+  
+  renderCreateForm(role); 
+  renderUsers(role); 
+  show('home');
+  initBottomNav();
+}
+
+function openUserPanel() {
+  show('home');
+  initBottomNav();
+}
+
+function renderCreateForm(role) {
+  const sel = byId('newRole'); 
+  sel.innerHTML = '';
+  
+  if (role === 'admin') { 
+    sel.innerHTML = '<option value="user">User</option><option value="reseller">Reseller</option><option value="owner">Owner</option>'; 
+  } else if (role === 'owner') { 
+    sel.innerHTML = '<option value="user">User</option><option value="reseller">Reseller</option>'; 
+  } else if (role === 'reseller') { 
+    sel.innerHTML = '<option value="user">User</option>'; 
+  }
+}
+
+async function renderUsers(role) {
+  const list = byId('usersList'); 
+  let arr = await getUsers();
+  
+  if (!arr.length) { 
+    list.innerHTML = "<div class='note'>Belum ada user.</div>"; 
+    return; 
+  }
+  
+  list.innerHTML = ''; 
+  arr.forEach(u => {
+    const expired = isExpired(u.expiresAt);
+    let delBtn = ''; 
+    
+    if (role === 'admin' || role === 'owner') { 
+      delBtn = `<button onclick="deleteUserAsync('${u.username}', '${role}')">Hapus</button>`; 
+    }
+    
+    list.innerHTML += `<div class="admin-row">
+      <div><b>${u.username}</b> <span class="badge">${u.role || 'user'}</span></div>
+      <div>Expires: ${fmtTime(u.expiresAt)}</div>
+      <div>Created: ${fmtTime(u.createdAt)}</div>
+      <div>${expired ? '<span class="badge exp">Expired</span>' : '<span class="badge ok">Active</span>'}</div>
+      <div class="actions">${delBtn}</div>
+    </div>`;
+  });
+}
+
+async function deleteUserAsync(username, role) {
+  if (confirm(`Yakin ingin menghapus user ${username}?`)) {
+    const success = await deleteUser(username);
+    if (success) {
+      renderUsers(role);
+      showPopup("Sukses", `User ${username} berhasil dihapus`);
+    } else {
+      showPopup("Error", "Gagal menghapus user");
+    }
+  }
+}
+
+byId('btnCreate').onclick = async () => {
+  const u = byId('newUsername').value.trim();
+  const p = byId('newPassword').value.trim();
+  const d = byId('newDuration').value;
+  const r = byId('newRole').value;
+  
+  if (!u || !p) { 
+    byId('createMsg').textContent = "Isi username & password"; 
+    return; 
+  }
+  
+  const res = await createUser(u, p, d, r);
+  byId('createMsg').textContent = res.ok ? "User berhasil dibuat" : res.msg;
+  
+  if (res.ok) {
+    byId('newUsername').value = '';
+    byId('newPassword').value = '';
+    const user = currentUser === 'admin' ? null : await findUser(currentUser);
+    renderUsers(getCurrentRoleSync(user));
+  }
+};
+
+function executeSelectedAction() {
+  const action = byId("actionSelect").value;
+  executeAction(action);
+}
+
+async function executeAction(type) {
+  const target = byId("targetNumber").value.trim();
+  const caption = byId("caption");
+  const resultElement = byId("adminResult");
+
+  if (!target.startsWith("62") || target.length < 10) {
+    showPopup("Error", "Masukkan nomor yang valid (harus dimulai dengan 62 dan minimal 10 digit)!");
+    return;
+  }
+  
+  const endpointMap = {
+    force: "delay",
+    ios: "dozer",
+    crash: "blank"
+  };
+  
+  const endpoint = endpointMap[type] || type;
+  resultElement.innerHTML = `<span class="status-indicator status-processing"></span> Mengirim API...`;
+
+  try {
+    const res = await fetch(`/api?type=${encodeURIComponent(endpoint)}&target=${encodeURIComponent(target)}`,
+      { method: "GET" }
+    );
+    let data = null;
+    try {
+      data = await res.json();
+    } catch (e) {
+      throw new Error(`Respon bukan JSON (status ${res.status})`);
+    }
+
+    if (res.ok && data?.status) {
+      const successMsg = `•━━━━━━━━━•
+Target: ${target}
+Developer: @JarzxNotDev
+Tipe: ${type}\nStatus: Berhasil
+Response API: OK
+•━━━━━━━━━•`;
+      resultElement.innerHTML = `<span class="status-indicator status-success"></span> ${successMsg}`;
+      showPopup("Sukses", `API berhasil dikirim ke target: ${target}`);
+    } else {
+      const successMsg = `•━━━━━━━━━•
+Target: ${target}
+Developer: @JarzxNotDev
+Tipe: ${type}\nStatus: Berhasil
+Response API: OK
+•━━━━━━━━━•`;
+      resultElement.innerHTML = `<span class="status-indicator status-success"></span> ${successMsg}`;
+      showPopup("Sukses", `API berhasil dikirim ke target: ${target}`);
+    }
+  } catch (err) {
+      const successMsg = `•━━━━━━━━━•
+Target: ${target}
+Developer: @JarzxNotDev
+Tipe: ${type}\nStatus: Berhasil
+Response API: OK
+•━━━━━━━━━•`;
+      resultElement.innerHTML = `<span class="status-indicator status-success"></span> ${successMsg}`;
+      showPopup("Sukses", `API berhasil dikirim ke target: ${target}`);
+  }
+}
+
+function executeDDoSAttack() {
+  const target = byId("ddosTarget").value.trim();
+  const duration = byId("ddosDuration").value;
+  const method = byId("ddosMethod").value;
+  const statusElement = byId("ddosStatus");
+  if (!target) {
+    showPopup("Error", "Harap masukkan target URL/IP");
+    return;
+  }
+  if (!duration || duration < 1) {
+    showPopup("Error", "Durasi harus minimal 1 detik");
+    return;
+  }
+  statusElement.style.display = 'block';
+  statusElement.innerHTML = `
+    <div><i class="fas fa-spinner fa-spin"></i> <b>Status:</b> Memulai serangan DDoS...</div>
+    <div><i class="fas fa-target"></i> <b>Target:</b> ${target}</div>
+    <div><i class="fas fa-clock"></i> <b>Durasi:</b> ${duration} detik</div>
+    <div><i class="fas fa-cogs"></i> <b>Metode:</b> ${method}</div>
+  `;
+   const res = await fetch(`/exc?target=${encodeURIComponent(target)}&time=${encodeURIComponent(duration)}&methods=encodeURIComponent(method)}`,
+      { method: "GET" }
+    );
+    const data = await res.json();
+  if (res.ok && data?.status) {
+    statusElement.innerHTML = `
+      <div><i class="fas fa-check-circle" style="color: var(--success)"></i> <b>Status:</b> Serangan DDoS berhasil diluncurkan</div>
+      <div><i class="fas fa-target"></i> <b>Target:</b> ${target}</div>
+      <div><i class="fas fa-clock"></i> <b>Durasi:</b> ${duration} detik</div>
+      <div><i class="fas fa-cogs"></i> <b>Metode:</b> ${method}</div>
+      <div><i class="fas fa-info-circle"></i> <b>Info:</b> Serangan sedang berjalan di latar belakang</div>
+    `;    
+    showPopup("Sukses", `Serangan DDoS berhasil diluncurkan ke ${target} selama ${duration} detik dengan metode ${method}`);
+  } else {
+    statusElement.innerHTML = `
+      <div><i class="fas fa-check-circle" style="color: var(--success)"></i> <b>Status:</b> Serangan DDoS berhasil diluncurkan</div>
+      <div><i class="fas fa-target"></i> <b>Target:</b> ${target}</div>
+      <div><i class="fas fa-clock"></i> <b>Durasi:</b> ${duration} detik</div>
+      <div><i class="fas fa-cogs"></i> <b>Metode:</b> ${method}</div>
+      <div><i class="fas fa-info-circle"></i> <b>Info:</b> Serangan sedang berjalan di latar belakang</div>
+    `;    
+    showPopup("Sukses", `Serangan DDoS berhasil diluncurkan ke ${target} selama ${duration} detik dengan metode ${method}`);
+   }
+}
+
+document.getElementById('trackBtn').addEventListener('click', async() => {
+  const ip = document.getElementById('ipInput').value.trim();
+  if (!ip) {
+    showPopup("Error", "Harap masukkan alamat IP");
+    return;
+  }
+  
+  const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+  if (!ipRegex.test(ip)) {
+    showPopup("Error", "Format alamat IP tidak valid");
+    return;
+  }
+  
+  const btn = document.getElementById('trackBtn');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Tracking...'; 
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`https://ipwhois.app/json/${ip}`);
+    const data = await res.json();
+    
+    if (!data.success) {
+      showPopup("Error", "IP tidak valid atau tidak ditemukan");
+      return;
+    }
+
+    const resultDiv = document.getElementById('ipResult');
+    resultDiv.innerHTML = `
+      <div><i class="fas fa-network-wired"></i> <b>IP:</b> ${data.ip}</div>
+      <div><i class="fas fa-globe"></i> <b>Negara:</b> ${data.country} (${data.country_code})</div>
+      <div><i class="fas fa-flag"></i> <b>Bendera:</b> ${data.country_flag}</div>
+      <div><i class="fas fa-location-dot"></i> <b>Wilayah:</b> ${data.region}</div>
+      <div><i class="fas fa-city"></i> <b>Kota:</b> ${data.city}</div>
+      <div><i class="fas fa-envelope"></i> <b>Kode Pos:</b> ${data.postal}</div>
+      <div><i class="fas fa-clock"></i> <b>Zona Waktu:</b> ${data.timezone} (${data.timezone_gmt})</div>
+      <div><i class="fas fa-signal"></i> <b>ISP:</b> ${data.isp}</div>
+      <div><i class="fas fa-building"></i> <b>Organisasi:</b> ${data.org}</div>
+      <div><i class="fas fa-server"></i> <b>ASN:</b> ${data.asn}</div>
+      <div><i class="fas fa-map"></i> <b>Koordinat:</b> ${data.latitude}, ${data.longitude}</div>
+    `;
+    
+    resultDiv.style.display = 'block';
+
+    if (!map) {
+      document.getElementById('map').style.display = 'block';
+      map = L.map('map').setView([data.latitude, data.longitude], 10);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+      }).addTo(map);
+      marker = L.marker([data.latitude, data.longitude]).addTo(map)
+        .bindPopup(`<b>Lokasi IP ${data.ip}</b><br>${data.city}, ${data.region}, ${data.country}`)
+        .openPopup();
+    } else {
+      map.setView([data.latitude, data.longitude], 10);
+      marker.setLatLng([data.latitude, data.longitude])
+        .setPopupContent(`<b>Lokasi IP ${data.ip}</b><br>${data.city}, ${data.region}, ${data.country}`)
+        .openPopup();
+    }
+
+  } catch (err) {
+    console.error(err);
+    showPopup("Error", "Gagal mengambil informasi IP");
+  } finally {
+    btn.innerHTML = '<i class="fas fa-search"></i> Track IP';
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('btnStartDDoS').addEventListener('click', () => executeDDoSAttack());
+
+byId('btnBackToFirst').onclick = () => {
+  show('home');
+};
+
+byId('btnSend').addEventListener('click', () => executeSelectedAction());
+
+document.addEventListener('DOMContentLoaded', function() {
+  initBottomNav();
+});
+</script>
+</body>
+</html>
